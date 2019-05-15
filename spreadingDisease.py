@@ -6,12 +6,13 @@ class Human:
 		self.id = id
 		self.status = 0
 		self.friends = [];
-		self.timeInfected = 0;
 
-	def getInfected(self, t):
+	def setAsImmuned(self):
+		self.status = 3
+
+	def getInfected(self):
 		if self.status == 0:
 			self.status = 1
-			self.timeInfected = t;
 
 	def getRemoved(self):
 		self.status = 2
@@ -20,18 +21,18 @@ class Human:
 		if id not in self.friends:
 			self.friends.append(id)
 
-	def infect(self, infectionChance, t):
+	def infect(self, infectionChance):
 		for friendId in self.friends:
 			#lets not infect dead people
-			if humans[friendId].status==2:
+			if humans[friendId].status>=2:
 				continue
 			#infect at random
 			num = random.random()
 			if num <= infectionChance:
-				humans[friendId].getInfected(t)
+				humans[friendId].getInfected()
 
 
-	def heal(self, deathchance, t):
+	def heal(self, deathchance):
 		#kill at random
 		num = random.random()
 		if num < deathchance:
@@ -39,12 +40,14 @@ class Human:
 
 humans = []
 
-def killPeople(infectionChance, deathchance):
+def killPeople(infectionChance, deathchance, startingProcent, immuneProcent, skipLog):
+	log = open("log" + str(1) + ".txt", "w")
 	humans.clear()
 	resultInfected = []
 	resultInfected.append(7)
+	numPeople=256
 	
-	for i in range(256):
+	for i in range(numPeople):
 		humans.append(Human(i))
 	
 	sum = 0
@@ -57,8 +60,18 @@ def killPeople(infectionChance, deathchance):
 		humans[a].addConnection(b)
 		humans[b].addConnection(a)
 
-	for i in range(7):
-		humans[i].getInfected(0);
+	for i in random.sample(humans, int(immuneProcent * numPeople)):
+		i.setAsImmuned();
+
+	for i in random.sample(humans, 7):
+		i.getInfected();	
+
+	if not skipLog:
+		log.write(str(edges) + "\n");
+
+		log.write(str([i.id for i in humans if i.status==0]) + "\n")
+		log.write(str([i.id for i in humans if i.status==1]) + "\n")
+		log.write(str([i.id for i in humans if i.status==3]) + "\n")
 
 	t = 1;
 	
@@ -68,15 +81,20 @@ def killPeople(infectionChance, deathchance):
 			break;
 
 		for person in infected:
-			person.infect(infectionChance, t)
+			person.infect(infectionChance)
 
 		infected = [i for i in humans if i.status==1]
 
 		for person in infected:
-			person.heal(deathchance, t);
+			person.heal(deathchance);
 
 		resultInfected.append(len(infected))
 
+		if not skipLog:
+			log.write(str([i.id for i in humans if i.status==0]) + "\n")	
+			log.write(str([i.id for i in humans if i.status==1]) + "\n")
+			log.write(str([i.id for i in humans if i.status==2]) + "\n")
+			
 		t+=1
 
 	return resultInfected

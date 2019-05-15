@@ -1,10 +1,10 @@
 from spreadingDisease import killPeople
 
-def test(tries, infectionChance, deathChance):
+def test(tries, infectionChance, deathChance, startingPercent, ImmunePercent):
 	results = []
 	
 	for i in range(tries):
-		results.append(killPeople(infectionChance, deathChance));
+		results.append(killPeople(infectionChance, deathChance, startingPercent, ImmunePercent, True));
 	
 	totalData = results[0];
 	totalDays = len(results[0]);
@@ -27,3 +27,11 @@ def test(tries, infectionChance, deathChance):
 		totalData[i] /= tries;
 
 	return totalDays, totalData[:int(totalDays)]
+
+#print(test(100, 0.011815420986557242, 0.016641076237243986, 7, 0))
+#print()
+#print(test(100, 0.011815420986557242, 0.016641076237243986, 7, 0.25))
+#print()
+#print(test(100, 0.011815420986557242, 0.016641076237243986, 7, 0.5))
+#print()
+#print(test(100, 0.011815420986557242, 0.016641076237243986, 7, 0.75))
